@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Kaushik Workshop Stack
+
+Parameters:
+  Environment:
+    Type: String
+    Default: Stage
+    Description: Deployment environment
+    AllowedValues:
+      - Dev
+      - Stage
+      - Prod
+  StackName:
+    Type: String
+    Default: KaushikWorkshopStack
+
+Mappings:
+  Host:
+    Dev:
+      value: docker.for.mac.localhost
+    Stage:
+      value: www.kaushik.hackerrank.net
+    Prod:
+      value: www.hackerrank.com
+
+Resources:
+  Lambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Serverless Stack
+      FunctionName: !Ref StackName
+      CodeUri: ./
+      Handler: index.handler
+      Runtime: nodejs8.10
+      MemorySize: 128
+      Timeout: 10
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          HOST: !FindInMap [Host, !Ref Environment, value]
+      Events:
+        HttpPost:
+          Type: Api
+          Properties:
+            Path: /
+            Method: POST
